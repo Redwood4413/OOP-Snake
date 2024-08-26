@@ -1,45 +1,34 @@
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref } from 'vue';
+import { Ref, onMounted, ref } from 'vue';
 
-const canvasElement: Ref<HTMLCanvasElement | null> = ref(null);
+const canvasElement: Ref<HTMLCanvasElement> =
+  ref() as Ref<HTMLCanvasElement>;
 const ctx: Ref<CanvasRenderingContext2D | null> = ref(null);
-const fpsCounter: HTMLSpanElement | null = ref(null);
+const fpsCounter: Ref<HTMLSpanElement | null> | null = ref(null);
 const msMovingSpeed = 300;
 const intervalsArray: number[] = [];
-let currentKeyDownArr: string[] = [];
+const currentKeyDownArr: string[] = [];
 const headSize = 25;
 const snakeLength = 0;
 
-const isMoveKey = (action: string) => {
-  if (
-    action !== 'ArrowLeft' &&
-    action !== 'ArrowRight' &&
-    action !== 'ArrowDown'
-  ) {
-    return false;
-  }
+const allowedKeyCodes: string[] = [
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowDown',
+  'KeyW',
+  'KeyS',
+  'KeyA',
+  'KeyD',
+];
+const isMoveKey = (key: string) => allowedKeyCodes.includes(key);
 
-  return true;
-};
-
-const handleKeyUp = (event: KeyboardEvent) => {
-  if (!isMoveKey(event.key)) return;
-  // console.log(event);
-  if (event.repeat) return;
-
-  currentKeyDownArr = currentKeyDownArr.filter(
-    (key) => key !== event.key,
-  );
-  console.log(`keyup: ${event.key}`);
-};
-const callInterval = ({ x, y }: Position) => {};
+// const callInterval = ({ x, y }: Position) => {};
 
 const pos: Position = {
   x: 0,
   y: 0,
 };
-
-const moveLoop = () => {};
 
 type Position = {
   x: number;
@@ -53,11 +42,6 @@ const draw = () => {
   ctx.value.fillStyle = '#ffff00';
 };
 
-setInterval(() => {
-  pos.x += headSize;
-  pos.y += headSize;
-}, 1000);
-
 const fps = ref(0);
 let oldTimeStamp = 0;
 let secondsPassed = 0;
@@ -70,8 +54,8 @@ const gameLoop = (timeStamp: number) => {
   ctx.value?.clearRect(
     0,
     0,
-    canvasElement.value?.width,
-    canvasElement.value?.height,
+    canvasElement.value.width,
+    canvasElement.value.height,
   );
   draw();
   window.requestAnimationFrame(gameLoop);
@@ -80,51 +64,28 @@ const gameLoop = (timeStamp: number) => {
 const init = () => {
   window.requestAnimationFrame(gameLoop);
 };
-
-const move = (direction: 'right' | 'left' | 'down') => {
-  const updatePos = ({ x, y }: Position) => {
-    callInterval({ x, y });
-  };
-  switch (direction) {
-    case 'right':
-      updatePos({ x: 1, y: 0 });
-      break;
-    case 'left':
-      updatePos({ x: -1, y: 0 });
-      break;
-    case 'down':
-      updatePos({ x: 0, y: -1 });
-      break;
-    default:
-      break;
-  }
-};
-const checkIfInArray = (str: string) => {
-  return currentKeyDownArr.includes(str);
-};
-
+let direction = 'up';
 const handleKeyDown = (event: KeyboardEvent) => {
-  if (!isMoveKey(event.key)) return;
-  if (checkIfInArray(event.key)) return;
-  if (event.repeat) return;
+  if (!isMoveKey(event.code)) return;
 
-  currentKeyDownArr.push(event.key);
-
-  console.log(`keydown: ${event.key}`);
-  switch (event.key) {
-    case 'ArrowRight':
-      move('right');
+  switch (event.code) {
+    case 'ArrowUp' && 'KeyW':
+      direction = 'up';
       break;
-    case 'ArrowLeft':
-      move('left');
+    case 'ArrowDown' && 'KeyS':
+      direction = 'down';
       break;
-    case 'ArrowDown':
-      move('down');
+    case 'ArrowLeft' && 'KeyA':
+      direction = 'left';
+      break;
+    case 'ArrowRight' && 'KeyD':
+      direction = 'right';
       break;
     default:
       break;
   }
 };
+
 let canvHeight = window.innerHeight;
 let canvWidth = window.innerWidth;
 window.addEventListener('resize', () => {
@@ -133,15 +94,15 @@ window.addEventListener('resize', () => {
 });
 
 onMounted(() => {
-  ctx.value = canvasElement.value?.getContext('2d') || null;
+  ctx.value = canvasElement.value?.getContext('2d');
   document.addEventListener('keydown', handleKeyDown);
-  document.addEventListener('keyup', handleKeyUp);
   init();
 });
 </script>
 
 <template>
   <span class="fps-counter" ref="fpsCounter"> fps: {{ fps }} </span>
+  <SnakeEntity :direction="direction"></SnakeEntity>
   <canvas
     :height="canvHeight - 50"
     :width="canvWidth - 50"

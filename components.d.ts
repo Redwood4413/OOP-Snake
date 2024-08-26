@@ -7,7 +7,11 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    SnakeEntity: typeof import('./src/components/SnakeEntity.vue')['default']
+    SnakeEntityHead: typeof import('./src/components/SnakeEntityHead.vue')['default']
+    SnakeEntityTail: typeof import('./src/components/SnakeEntityTail.vue')['default']
     TheGameBoard: typeof import('./src/components/TheGameBoard.vue')['default']
     TheMain: typeof import('./src/components/TheMain.vue')['default']
+    TheSnake: typeof import('./src/components/TheSnake.vue')['default']
   }
 }

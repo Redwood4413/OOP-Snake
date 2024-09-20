@@ -1,6 +1,7 @@
+import BodyPart from './BodyPart';
+import Config from './Config';
 import gameConfig from './config/game.config';
 import type Snake from './Snake';
-import TailTile from './TailTile';
 
 class Tail {
   length = gameConfig.snake.length;
@@ -13,9 +14,11 @@ class Tail {
   }
 
   init() {
+    const { size } = Config.instance.snake;
+    const headPos = this.getHeadPos();
     for (let i = 1; i <= this.length; i += 1) {
-      console.log(i);
-      const tile = new TailTile(this, i);
+      const tile = new BodyPart();
+      tile.setPos({ x: headPos.x - size * i, y: headPos.y });
       this.Snake.tiles.push(tile);
     }
   }
@@ -25,18 +28,15 @@ class Tail {
   }
 
   getHeadPos() {
-    return this.Snake.tiles[0].getPos();
+    return this.Snake.Head.getPos();
   }
 
   updatePos() {
-    for (let i = 0; i <= this.Snake.tiles.length - 2; i += 1) {
-      this.Snake.tiles[i].follow();
-    }
-    console.log(this.Snake.tiles);
-  }
+    const lastTile = this.Snake.tiles.pop()!;
 
-  setPos(index: number, pos: Position) {
-    this.Snake.tiles[index]?.setPos(pos);
+    this.Snake.tiles.splice(1, 0, lastTile);
+
+    lastTile.setPos(this.getHeadPos());
   }
 }
 

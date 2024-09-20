@@ -28,7 +28,9 @@ class Game extends GameElement {
   }
 
   private static handleEvent(event: KeyboardEvent) {
-    if (!Game.isMoveKey(event.code)) return;
+    // if (!Game.isMoveKey(event.code)) return;
+    // gameConfig.keyboard.mapping
+
     switch (event.code) {
       case 'KeyW':
       case 'ArrowUp':

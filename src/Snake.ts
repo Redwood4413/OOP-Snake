@@ -1,6 +1,5 @@
-// import Renderer from './Renderer';
-
 import type BodyPart from './BodyPart';
+import Config from './Config';
 import gameConfig from './config/game.config';
 import Head from './Head';
 import Renderer from './Renderer';
@@ -16,21 +15,16 @@ class Snake {
   constructor() {
     this.Head = new Head(this);
     this.Tail = new Tail(this);
-    this.tiles.push(this.Head);
+    this.tiles.unshift(this.Head);
     Renderer.instance.add(...this.tiles);
     this.move();
   }
-
-  // registerTiles(...tiles: BodyPart[]) {
-  //   tiles.forEach((tile) => this.tiles.push(tile));
-  // }
 
   move() {
     const { size, updatePos } = this.Head;
     const { speed } = gameConfig.snake;
     setInterval(() => {
       this.Tail.updatePos();
-      // console.log(this.head.getDirection())
       switch (this.Head.getDirection()) {
         case 'up':
           updatePos('y', -size);

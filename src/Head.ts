@@ -1,35 +1,49 @@
 import BodyPart from './BodyPart';
+import Collision from './Collision';
+import Config from './Config';
+import Field from './Field';
+import GameElement from './GameElement';
 import KeyBuffer from './KeyBuffer';
+import PositionUtils from './PositionUtils';
 import Renderer from './Renderer';
 import type Snake from './Snake';
 
 class Head extends BodyPart {
   Snake;
 
-  buffer = KeyBuffer.getBuffer();
+  KeyBuffer;
 
-  lastDirection: Direction;
+  buffer: Direction[] = [];
 
-  pos = {
-    x: Renderer.instance.getMiddleOfCanvas().x,
-    y: Renderer.instance.getMiddleOfCanvas().y,
-  };
+  Collision;
+
+  Renderer;
 
   constructor(Snake: Snake) {
     super();
+    this.KeyBuffer = new KeyBuffer();
+    this.buffer = this.KeyBuffer.buffer;
     this.Snake = Snake;
-    // this.Snake.registerTiles(this);
-    this.lastDirection = this.buffer[this.buffer.length - 1];
+    this.setPos({
+      x: this.Snake.Game.Field.getMiddleOfCanvas().x,
+      y: this.Snake.Game.Field.getMiddleOfCanvas().y,
+    });
+    this.setColor('#FF0000');
+    this.Renderer = Renderer.instance;
+    this.Collision = new Collision(this);
+  }
+
+  getElementsOnTheSameAxis(axis: keyof Position, position: number) {
+    return this.Renderer.getStack().filter(
+      (element) => element.getPos()[axis] === position,
+    );
   }
 
   turn(to: Direction) {
-    const from = this.buffer[this.buffer.length]
-      ? this.buffer[this.buffer.length - 1]
-      : this.lastDirection;
+    const from = this.buffer[this.buffer.length - 1];
     if (!Head.isProperTurn(from, to)) return;
 
-    KeyBuffer.addDirectionToBuffer(to);
-    this.lastDirection = to;
+    this.KeyBuffer.addDirectionToBuffer(to);
   }
 
   static isProperTurn(from: Direction, to: Direction) {
@@ -41,13 +55,15 @@ class Head extends BodyPart {
     return true;
   }
 
-  getDirection() {
-    const { length } = this.buffer;
-    const direction =
-      length > 0 ? this.buffer[0] : this.lastDirection;
-    KeyBuffer.popFirst();
+  getCurrentDirection() {
+    if (this.buffer.length > 1) this.clearUsedDirection();
 
-    return direction;
+    return this.buffer[0];
+  }
+
+  clearUsedDirection() {
+    this.KeyBuffer.popFirst();
+    const found = this.getElementsOnTheSameAxis('x', this.getPos().x);
   }
 }
 export default Head;

@@ -1,18 +1,14 @@
 <script setup lang="ts"></script>
 
 <template>
-  <main>
-    <TheGameBoard></TheGameBoard>
-  </main>
+  <TheGameBoard></TheGameBoard>
 </template>
 
-<style scoped>
-main {
+<style>
+#app {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100;
-  width: 100%;
 }
 </style>

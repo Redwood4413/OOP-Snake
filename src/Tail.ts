@@ -1,10 +1,9 @@
 import BodyPart from './BodyPart';
 import Config from './Config';
-import gameConfig from './config/game.config';
 import type Snake from './Snake';
 
 class Tail {
-  length = gameConfig.snake.length;
+  length = Config.instance.snake.length;
 
   Snake;
 

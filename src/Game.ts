@@ -1,78 +1,71 @@
 // import GameElement from './GameElement';
-import gameConfig from './config/game.config';
-import GameElement from './GameElement';
 import Snake from './Snake';
 import Renderer from './Renderer';
+import GameState from './GameState';
+import Config from './Config';
+import Food from './Food';
+import Field from './Field';
 
-class Game extends GameElement {
+class Game {
+  static #instance: Game;
+
   fps = 0;
 
   secondsPassed = 0;
 
-  canvas: HTMLCanvasElement;
+  Snake: Snake;
 
-  static snake: Snake;
+  Renderer;
 
-  renderer: Renderer;
+  State: GameState;
 
-  static isMoveKey = (keyCode: string) =>
-    gameConfig.allowedKeyCodes.includes(keyCode);
+  Field;
 
-  constructor() {
-    super();
-
-    this.canvas = document.querySelector('canvas')!;
-    window.addEventListener('keydown', Game.handleEvent);
-    Game.snake = new Snake();
-    this.renderer = Renderer.instance;
+  private constructor() {
+    this.Field = new Field();
+    this.Field.onWindowResize();
+    this.Snake = new Snake(this);
+    this.State = GameState.instance;
+    this.Renderer = Renderer.instance;
+    this.init();
   }
 
-  private static handleEvent(event: KeyboardEvent) {
-    // if (!Game.isMoveKey(event.code)) return;
-    // gameConfig.keyboard.mapping
+  public static reset() {
+    this.#instance = this.instance;
+  }
 
-    switch (event.code) {
-      case 'KeyW':
-      case 'ArrowUp':
-        Game.snake.setDirection('up');
-        break;
-      case 'KeyS':
-      case 'ArrowDown':
-        Game.snake.setDirection('down');
-        break;
-      case 'KeyA':
-      case 'ArrowLeft':
-        Game.snake.setDirection('left');
-        break;
-      case 'KeyD':
-      case 'ArrowRight':
-        Game.snake.setDirection('right');
-        break;
-      default:
-        break;
+  public static get instance() {
+    if (!this.#instance) {
+      this.#instance = new Game();
     }
+    return this.#instance;
   }
 
-  static getWindowDimensions = () => ({
-    x: window.innerWidth,
-    y: window.innerHeight,
-  });
+  private static onKeyPress(event: KeyboardEvent) {
+    const { mapping } = Config.instance.keyboard;
 
-  init() {
-    const { padding } = gameConfig.screen;
-    this.canvas.width = Game.getWindowDimensions().x - padding;
-    this.canvas.height = Game.getWindowDimensions().y - padding;
-
-    window.requestAnimationFrame(this.gameLoop);
+    const transformKeyToDirection = (): Direction => {
+      return Object.keys(mapping).find((key) =>
+        mapping[key as Direction].includes(event.code),
+      ) as Direction;
+    };
+    Game.instance.Snake.setDirection(transformKeyToDirection());
   }
 
-  gameLoop = () => {
+  private init() {
+    this.Snake.start();
+    const food = new Food(this.Field);
+    window.addEventListener('keydown', Game.onKeyPress);
+    window.requestAnimationFrame(Game.loop);
+  }
+
+  private static loop() {
     // this.secondsPassed = (this.timeStamp - this.oldTimeStamp) / 1000;
-    // oldTimeStamp = timeStamp;
+    //  oldTimeStamp = timeStamp;
     // this.fps = Math.round(1 / secondsPassed);
-    this.renderer.render();
-    window.requestAnimationFrame(this.gameLoop);
-  };
+    Game.instance.Renderer.render();
+    window.requestAnimationFrame(Game.loop);
+  }
 }
 
 export default Game;

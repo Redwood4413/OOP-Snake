@@ -1,19 +1,19 @@
 class KeyBuffer {
-  static buffer: Direction[] = ['right'];
+  buffer: Direction[] = [];
 
-  static size = 4;
+  size = 4;
 
-  static addDirectionToBuffer(direction: Direction) {
-    const { size, buffer } = KeyBuffer;
-    if (buffer.length < size) KeyBuffer.buffer.push(direction);
+  constructor() {
+    this.buffer.push('right');
   }
 
-  static getBuffer() {
-    return KeyBuffer.buffer;
+  addDirectionToBuffer(direction: Direction) {
+    const { size, buffer } = this;
+    if (buffer.length < size) buffer.push(direction);
   }
 
-  static popFirst() {
-    if (this.buffer.length > 0) KeyBuffer.buffer.shift();
+  popFirst() {
+    this.buffer.shift();
   }
 }
 export default KeyBuffer;

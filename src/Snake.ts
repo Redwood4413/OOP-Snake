@@ -1,50 +1,70 @@
 import type BodyPart from './BodyPart';
 import Config from './Config';
-import gameConfig from './config/game.config';
+import type Game from './Game';
+import GameState from './GameState';
 import Head from './Head';
 import Renderer from './Renderer';
 import Tail from './Tail';
 
 class Snake {
+  Game;
+
   Head;
 
   Tail;
 
   tiles: BodyPart[] = [];
 
-  constructor() {
+  intervalId = 0;
+
+  constructor(Game: Game) {
+    this.Game = Game;
     this.Head = new Head(this);
     this.Tail = new Tail(this);
     this.tiles.unshift(this.Head);
     Renderer.instance.add(...this.tiles);
-    this.move();
   }
 
-  move() {
-    const { size, updatePos } = this.Head;
-    const { speed } = gameConfig.snake;
-    setInterval(() => {
+  private callMoveInterval() {
+    const { speed } = Config.instance.snake;
+    const size = this.Head.getSize();
+    // return;
+    this.intervalId = setInterval(() => {
       this.Tail.updatePos();
-      switch (this.Head.getDirection()) {
+      switch (this.Head.getCurrentDirection()) {
         case 'up':
-          updatePos('y', -size);
+          this.Head.updatePos('y', -size);
           break;
         case 'down':
-          updatePos('y', size);
+          this.Head.updatePos('y', size);
           break;
         case 'left':
-          updatePos('x', -size);
+          this.Head.updatePos('x', -size);
           break;
         case 'right':
-          updatePos('x', size);
+          this.Head.updatePos('x', size);
           break;
         default:
           break;
       }
+      //  this.Head.Collision.isCollision(),
     }, 1000 / speed);
   }
 
+  private clearMoveInterval() {
+    clearInterval(this.intervalId);
+  }
+
+  start() {
+    this.callMoveInterval();
+  }
+
+  stop() {
+    this.clearMoveInterval();
+  }
+
   setDirection(value: Direction) {
+    if (!value) return;
     this.Head.turn(value);
   }
 }

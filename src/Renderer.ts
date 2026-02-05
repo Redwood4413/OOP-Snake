@@ -1,9 +1,9 @@
-import BodyPart from './BodyPart';
+import type GameElement from './GameElement';
 
 class Renderer {
   static #instance: Renderer;
 
-  stack: BodyPart[] = [];
+  stack: GameElement[] = [];
 
   context: CanvasRenderingContext2D;
 
@@ -21,7 +21,11 @@ class Renderer {
     return Renderer.#instance;
   }
 
-  add(...parts: BodyPart[]) {
+  public static reset() {
+    this.#instance = new Renderer();
+  }
+
+  add(...parts: GameElement[]) {
     this.stack.push(...parts.flat());
   }
 
@@ -29,27 +33,24 @@ class Renderer {
     return this.stack;
   }
 
-  getMiddleOfCanvas(): Position {
-    return { x: this.canvas.width / 2, y: this.canvas.height / 2 };
-  }
-
   render() {
     this.clear();
-    this.getStack().forEach((body) => {
-      const pos = body.getPos();
-      const { size, color } = body;
+    this.getStack().forEach((element) => {
+      const pos = element.getPos();
+      const size = element.getSize();
+      const color = element.getColor();
       this.context.fillStyle = color;
       this.context.fillRect(pos.x, pos.y, size, size);
     });
   }
 
-  clear = () => {
+  clear() {
     this.context.clearRect(
       0,
       0,
       this.canvas.width,
       this.canvas.height,
     );
-  };
+  }
 }
 export default Renderer;

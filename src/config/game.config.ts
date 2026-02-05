@@ -1,8 +1,8 @@
 const gameConfig = {
   snake: {
-    speed: 50, // 'ticks' per second
-    size: 20, // px
-    length: 20,
+    speed: 5, // 'ticks' per second
+    size: 15, // integer px, 1-100: this value also determines the grid size
+    length: 3,
     color: '#826381',
   },
   keyboard: {
@@ -13,17 +13,8 @@ const gameConfig = {
       right: ['ArrowRight', 'KeyD'],
     } as { [key in Direction]: KeyboardEvent['code'][] },
   },
-  allowedKeyCodes: [
-    'ArrowLeft',
-    'ArrowRight',
-    'ArrowUp',
-    'ArrowDown',
-    'KeyW',
-    'KeyS',
-    'KeyA',
-    'KeyD',
-  ],
   screen: {
+    gridSize: 1, // 'x' times 16px, 1-3
     padding: 50, // px
   },
 };

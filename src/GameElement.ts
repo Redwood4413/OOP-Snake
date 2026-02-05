@@ -1,77 +1,47 @@
-import gameConfig from './config/game.config';
-
-type Position = { x: number; y: number };
+import Config from './Config';
+import PositionUtils from './PositionUtils';
 
 abstract class GameElement {
-  // protected abstract rectangle;
+  abstract type: string;
 
-  protected context: CanvasRendereringContext2D;
+  private pos: Position;
 
-  allInstances: GameElement[] = [];
+  private color: string;
 
-  pos: Position = {
-    x: 0,
-    y: 0,
-  };
+  private size: number;
 
-  constructor() {
-    this.context = document
-      .querySelector('canvas')
-      ?.getContext('2d')!;
-    this.allInstances.push(this);
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  getContext() {
-    return this.context;
-  }
-
-  getInstances() {
-    return this.allInstances;
+  constructor(
+    pos: Position = { x: 0, y: 0 },
+    color = Config.instance.snake.color,
+    size = Config.instance.snake.size,
+  ) {
+    this.pos = PositionUtils.alignPosToPseudoGrid(pos);
+    this.color = color;
+    this.size = size;
   }
 
   getPos() {
     return this.pos;
   }
 
-  setPos({ x, y }: Position) {
-    this.pos.x = x;
-    this.pos.y = y;
+  setPos(newPos: Position) {
+    this.pos = PositionUtils.alignPosToPseudoGrid(newPos);
   }
 
-  draw(
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    color: string = gameConfig.snake.color,
-  ) {
-    // console.log(this.context);
-    this.context.fillRect(x, y, w, h);
-
-    this.context.fillStyle = color;
+  setColor(color: string) {
+    const regex = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
+    if (!regex.test(color)) {
+      throw new Error(`Wrong HEX color code: ${color}.`);
+    }
+    this.color = color;
   }
-  // corners = {
-  //   top: {
-  //     left: {
-  //       x: 0,
-  //       y: 0,
-  //     },
-  //     right: {
-  //       x: window.innerWidth,
-  //       y: 0,
-  //     },
-  //   },
-  //   bottom: {
-  //     left: {
-  //       x: 0,
-  //       y: window.innerHeight,
-  //     },
-  //     right: {
-  //       x: window.innerWidth,
-  //       y: window.innerHeight,
-  //     },
-  //   },
-  // };
+
+  getColor() {
+    return this.color;
+  }
+
+  getSize() {
+    return this.size;
+  }
 }
 export default GameElement;
